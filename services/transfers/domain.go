@@ -18,6 +18,7 @@ var (
 	ErrReceiverNotExists       = errors.New("receiver account not exist")
 	ErrSenderWrongCurrency     = errors.New("sender account wrong currency")
 	ErrReceiverWrongCurrency   = errors.New("receiver account wrong currency")
+	ErrNotImplemented          = errors.New("not implemented")
 )
 
 // Transfer type enums.

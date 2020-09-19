@@ -23,6 +23,7 @@ func retry(pause time.Duration, maxCount uint, call func() error) error {
 		log.Print("retry error", err)
 		time.Sleep(pause)
 	}
+
 	return err
 }
 
@@ -36,12 +37,16 @@ func main() {
 
 	db, err := sql.Open("postgres", *dbInfo)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("fatal error %s", err)
+
+		return
 	}
 	defer db.Close()
-	err = retry(1*time.Second, 100, func() error { return db.Ping() })
+	err = retry(1*time.Second, 100, db.Ping)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("fatal error %s", err)
+
+		return
 	}
 
 	repo := transfers.NewRepository(db)
@@ -51,6 +56,6 @@ func main() {
 
 	fmt.Printf("Starting server at port %s\n", *port)
 	if err := http.ListenAndServe(":"+*port, httpHandler); err != nil {
-		log.Fatal(err)
+		log.Printf("fatal error %s", err)
 	}
 }

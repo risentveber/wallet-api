@@ -2,7 +2,6 @@ package transfers
 
 import (
 	"context"
-	"errors"
 )
 
 type service struct {
@@ -14,7 +13,7 @@ func NewService(repo Repository) Service {
 }
 
 func (s service) CreateTransfer(ctx context.Context, order InnerTransferOrder) error {
-	return errors.New("not implemented")
+	return ErrNotImplemented
 }
 
 func (s service) GetTransfersForAccount(ctx context.Context, accountID string) ([]TransferInfo, error) {

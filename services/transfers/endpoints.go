@@ -18,6 +18,7 @@ func MakeCreateTransferEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateTransferRequest)
 		err := s.CreateTransfer(ctx, req.Order)
+
 		return CreateTransferResponse{Err: err}, nil
 	}
 }
@@ -35,6 +36,7 @@ func MakeGetTransfersForAccountEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetTransfersForAccountRequest)
 		transfers, err := s.GetTransfersForAccount(ctx, req.AccountID)
+
 		return GetTransfersForAccountResponse{Transfers: transfers, Err: err}, nil
 	}
 }
@@ -50,6 +52,7 @@ func MakeGetAccountsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		_ = request.(GetAccountsRequest)
 		accounts, err := s.GetAccounts(ctx)
+
 		return GetAccountsResponse{Accounts: accounts, Err: err}, nil
 	}
 }

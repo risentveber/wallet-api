@@ -22,6 +22,7 @@ func NewHTTPHandler(endpoints Endpoints) http.Handler {
 	r.Handle("/accounts/",
 		httptransport.NewServer(endpoints.GetAccounts, DecodeGetAccountsRequest, EncodeGetAccountsResponse)).
 		Methods("GET")
+
 	return r
 }
 
@@ -35,18 +36,21 @@ func NewCommonResponse(payload interface{}, err error) CommonResponse {
 	if err != nil {
 		return CommonResponse{Error: err.Error(), Result: "ERROR"}
 	}
+
 	return CommonResponse{Payload: payload, Result: "OK"}
 }
 
 func DecodeCreateTransferRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req CreateTransferRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
+
 	return req, err
 }
 
 func EncodeCreateTransferResponse(_ context.Context, w http.ResponseWriter, res interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	response, _ := res.(CreateTransferResponse)
+
 	return json.NewEncoder(w).Encode(NewCommonResponse(nil, response.Err))
 }
 
@@ -54,12 +58,14 @@ func DecodeGetTransfersForAccountRequest(_ context.Context, r *http.Request) (in
 	var req GetTransfersForAccountRequest
 	vars := mux.Vars(r)
 	req.AccountID = vars["account_id"]
+
 	return req, nil
 }
 
 func EncodeGetTransfersForAccountResponse(_ context.Context, w http.ResponseWriter, res interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	response, _ := res.(GetTransfersForAccountResponse)
+
 	return json.NewEncoder(w).Encode(NewCommonResponse(response.Transfers, response.Err))
 }
 
@@ -70,5 +76,6 @@ func DecodeGetAccountsRequest(_ context.Context, r *http.Request) (interface{}, 
 func EncodeGetAccountsResponse(_ context.Context, w http.ResponseWriter, res interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	response, _ := res.(GetAccountsResponse)
+
 	return json.NewEncoder(w).Encode(NewCommonResponse(response.Accounts, response.Err))
 }

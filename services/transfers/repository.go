@@ -35,6 +35,7 @@ func (r repository) GetAccounts(ctx context.Context, limit uint) ([]Account, err
 		}
 		accounts = append(accounts, a)
 	}
+
 	return accounts, rows.Err()
 }
 
@@ -60,5 +61,6 @@ LIMIT $2`, accountID, limit)
 		}
 		transferInfos = append(transferInfos, ti)
 	}
+
 	return transferInfos, rows.Err()
 }

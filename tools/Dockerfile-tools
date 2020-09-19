@@ -1,0 +1,13 @@
+FROM golang:1.15
+
+RUN apt update && apt install -y graphviz postgresql git gcc libc-dev netcat
+RUN git clone --branch 'v0.8' https://github.com/cortesi/modd $GOPATH/src/github.com/cortesi/modd && cd $GOPATH/src/github.com/cortesi/modd && go install ./cmd/modd
+RUN go get github.com/rubenv/sql-migrate/...
+
+ENV GO111MODULE=on
+RUN go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.31.0
+RUN go get github.com/go-task/task/v3/cmd/task
+
+WORKDIR /app
+
+ENTRYPOINT ["/bin/sh"]

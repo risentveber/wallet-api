@@ -1,12 +1,13 @@
-package wallet_api
+package walletapi
 
 import (
 	"errors"
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
-// Business logic level errors that provide enough information about what went wrong
+// Business logic level errors that provide enough information about what went wrong.
 var (
 	ErrAccountsMustBeDifferent = errors.New("accounts must be different")
 	ErrAmountMustBePositive    = errors.New("transfer amount must be positive")
@@ -18,26 +19,26 @@ var (
 	ErrReceiverWrongCurrency   = errors.New("receiver account wrong currency")
 )
 
-// Transfer type enums
+// Transfer type enums.
 const (
 	Deposit  = "DEPOSIT"
 	Withdraw = "WITHDRAW"
 	Internal = "INTERNAL"
 )
 
-// Direction enums
+// Direction enums.
 const (
 	Incoming = "INCOMING"
 	Outgoing = "OUTGOING"
 )
 
-// Currency model for multiple currencies each one with different precision
+// Currency model for multiple currencies each one with different precision.
 type Currency struct {
 	Code      string
 	Precision uint
 }
 
-// Transfer order for system to process
+// Transfer order for system to process.
 type InnerTransferOrder struct {
 	ID                string // uuid4 acts as idempotency key
 	SenderAccountID   string
@@ -72,7 +73,7 @@ type TransferPart struct {
 	Direction              string
 }
 
-// Account representation with time fields that are updated accordingly
+// Account representation with time fields that are updated accordingly.
 type Account struct {
 	ID           string
 	CurrencyCode string
@@ -81,7 +82,7 @@ type Account struct {
 	UpdatedAt    time.Time
 }
 
-// Business actions
+// Business actions.
 type Service interface {
 	CreateTransfer(order InnerTransferOrder) error
 	GetTransfersForAccount(accountID string) ([]TransferInfo, error)

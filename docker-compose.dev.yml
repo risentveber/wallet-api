@@ -1,0 +1,33 @@
+version: '3.6'
+networks:
+  wallet_api_network:
+    name: wallet api network
+
+services:
+  api:
+    image: go-dev-tools:latest
+    container_name: api
+    restart: always
+    volumes:
+      - ".:/app"
+      - $GOPATH/pkg/mod:/go/pkg/mod
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    entrypoint: /bin/sh -c "modd -f ./tools/modd.conf"
+    networks:
+      - wallet_api_network
+  postgres:
+    image: postgres:12-alpine
+    container_name: db
+    restart: always
+    networks:
+      wallet_api_network:
+        aliases:
+          - "postgres.docker.local"
+    environment:
+      POSTGRES_PASSWORD: "test"
+    volumes:
+      - "./tmp/postgres:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"

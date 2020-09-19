@@ -1,6 +1,7 @@
-package walletapi
+package transfers
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -48,14 +49,14 @@ type InnerTransferOrder struct {
 }
 
 type TransferInfo struct {
-	ID                     string
-	AccountID              string
-	CorrespondingAccountID *string
-	Type                   string
-	Direction              string
-	Amount                 decimal.Decimal
-	CurrencyCode           string
-	CreatedAt              time.Time
+	ID                     string          `json:"id"`
+	AccountID              string          `json:"account_id"`
+	CorrespondingAccountID *string         `json:"corresponding_account_id"`
+	Type                   string          `json:"type"`
+	Direction              string          `json:"direction"`
+	Amount                 decimal.Decimal `json:"amount"`
+	CurrencyCode           string          `json:"currency_code"`
+	CreatedAt              time.Time       `json:"created_at"`
 }
 
 type Transfer struct {
@@ -84,7 +85,7 @@ type Account struct {
 
 // Business actions.
 type Service interface {
-	CreateTransfer(order InnerTransferOrder) error
-	GetTransfersForAccount(accountID string) ([]TransferInfo, error)
-	GetAccounts() ([]Account, error)
+	CreateTransfer(ctx context.Context, order InnerTransferOrder) error
+	GetTransfersForAccount(ctx context.Context, accountID string) ([]TransferInfo, error)
+	GetAccounts(ctx context.Context) ([]Account, error)
 }

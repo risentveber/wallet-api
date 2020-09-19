@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/google/uuid"
 )
 
 type CreateTransferRequest struct {
@@ -24,7 +25,7 @@ func MakeCreateTransferEndpoint(s Service) endpoint.Endpoint {
 }
 
 type GetTransfersForAccountRequest struct {
-	AccountID string
+	AccountID uuid.UUID
 }
 
 type GetTransfersForAccountResponse struct {

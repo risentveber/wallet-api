@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -42,17 +43,17 @@ type Currency struct {
 
 // Transfer order for system to process.
 type InnerTransferOrder struct {
-	ID                string // uuid4 acts as idempotency key
-	SenderAccountID   string
-	ReceiverAccountID string
+	ID                uuid.UUID // uuid4 acts as idempotency key
+	SenderAccountID   uuid.UUID
+	ReceiverAccountID uuid.UUID
 	Amount            decimal.Decimal
 	CurrencyCode      string // code
 }
 
 type TransferInfo struct {
-	ID                     string          `json:"id"`
-	AccountID              string          `json:"account_id"`
-	CorrespondingAccountID *string         `json:"corresponding_account_id"`
+	ID                     uuid.UUID       `json:"id"`
+	AccountID              uuid.UUID       `json:"account_id"`
+	CorrespondingAccountID *uuid.UUID      `json:"corresponding_account_id"`
 	Type                   string          `json:"type"`
 	Direction              string          `json:"direction"`
 	Amount                 decimal.Decimal `json:"amount"`
@@ -61,7 +62,7 @@ type TransferInfo struct {
 }
 
 type Transfer struct {
-	ID           string
+	ID           uuid.UUID
 	Type         string // Deposit, Withdraw, Internal
 	Amount       decimal.Decimal
 	CurrencyCode string
@@ -69,15 +70,15 @@ type Transfer struct {
 }
 
 type TransferPart struct {
-	TransferID             string
-	AccountID              string
-	CorrespondingAccountID *string
+	TransferID             uuid.UUID
+	AccountID              uuid.UUID
+	CorrespondingAccountID *uuid.UUID
 	Direction              string
 }
 
 // Account representation with time fields that are updated accordingly.
 type Account struct {
-	ID           string
+	ID           uuid.UUID
 	CurrencyCode string
 	Balance      decimal.Decimal
 	CreatedAt    time.Time
@@ -87,6 +88,6 @@ type Account struct {
 // Business actions.
 type Service interface {
 	CreateTransfer(ctx context.Context, order InnerTransferOrder) error
-	GetTransfersForAccount(ctx context.Context, accountID string) ([]TransferInfo, error)
+	GetTransfersForAccount(ctx context.Context, accountID uuid.UUID) ([]TransferInfo, error)
 	GetAccounts(ctx context.Context) ([]Account, error)
 }

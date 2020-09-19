@@ -3,11 +3,13 @@ package transfers
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 type Repository interface {
 	GetAccounts(ctx context.Context, limit uint) ([]Account, error)
-	GetTransferInfos(ctx context.Context, accountID string, limit uint) ([]TransferInfo, error)
+	GetTransferInfos(ctx context.Context, accountID uuid.UUID, limit uint) ([]TransferInfo, error)
 }
 
 func NewRepository(db *sql.DB) Repository {
@@ -39,7 +41,7 @@ func (r repository) GetAccounts(ctx context.Context, limit uint) ([]Account, err
 	return accounts, rows.Err()
 }
 
-func (r repository) GetTransferInfos(ctx context.Context, accountID string, limit uint) ([]TransferInfo, error) {
+func (r repository) GetTransferInfos(ctx context.Context, accountID uuid.UUID, limit uint) ([]TransferInfo, error) {
 	rows, err := r.db.QueryContext(ctx, `
 SELECT transfers.id, account_id, corresponding_account_id, type, direction, currency_code, amount, created_at
 FROM transfer_parts 

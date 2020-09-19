@@ -2,6 +2,8 @@ package transfers
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type service struct {
@@ -12,11 +14,18 @@ func NewService(repo Repository) Service {
 	return service{repo}
 }
 
-func (s service) CreateTransfer(ctx context.Context, order InnerTransferOrder) error {
+func (s service) CreateTransfer(ctx context.Context, o InnerTransferOrder) error {
+	if !o.Amount.IsPositive() {
+		return ErrAmountMustBePositive
+	}
+	if o.ReceiverAccountID == o.SenderAccountID {
+		return ErrAccountsMustBeDifferent
+	}
+
 	return ErrNotImplemented
 }
 
-func (s service) GetTransfersForAccount(ctx context.Context, accountID string) ([]TransferInfo, error) {
+func (s service) GetTransfersForAccount(ctx context.Context, accountID uuid.UUID) ([]TransferInfo, error) {
 	return s.repo.GetTransferInfos(ctx, accountID, 100)
 }
 

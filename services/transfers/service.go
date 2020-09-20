@@ -2,6 +2,7 @@ package transfers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -74,6 +75,7 @@ func (s service) CreateTransfer(ctx context.Context, o InnerTransferOrder) error
 	if o.SenderAccountID == uuid.Nil {
 		return ErrEmptySenderAccountID
 	}
+	o.CurrencyCode = strings.ToUpper(o.CurrencyCode)
 	precision, ok, err := s.repo.GetPrecision(ctx, o.CurrencyCode)
 	if err != nil {
 		return err

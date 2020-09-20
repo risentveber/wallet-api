@@ -13,11 +13,21 @@ tasks:
     cmds:
       - docker-compose -f ./docker-compose.dev.yml up -d
       - docker logs -f api
+  migrate:
+    desc: "Run migrations inside docker-compose image"
+    cmds:
+      - docker exec api sql-migrate up
+      - docker exec api sql-migrate status
   down:
     desc: "Stops docker compose"
     silent: true
     cmds:
       - docker-compose -f ./docker-compose.dev.yml down
+  build_api_image:
+    desc: "Builds api image with $IMAGE_NAME"
+    cmds:
+      - echo 'start building {{.IMAGE_NAME}}'
+      - docker build -t {{.IMAGE_NAME}} .
   build_dev_tools:
     desc: "Build dev tools"
     cmds:

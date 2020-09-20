@@ -2,11 +2,13 @@
 
 ## Common response format
 
+All json responses are with `snake_case` field names format
+
 ```
-Entity {
-  ResultCode string // enum 'OK'|'ERROR'
-  Error      string // empty if ResultCode is 'OK'
-  Payload    object|array // 
+entity common_response {
+  result_code string // enum 'OK'|'ERROR'
+  error       string // empty if ResultCode is 'OK'
+  payload     object|array // 
 }
 ```
 
@@ -14,12 +16,12 @@ Entity {
 
 Create internal transfer between the two wallet accounts
 ```
-entity InnerTransferOrder {
-	ID                string // acts as idempotency key
-	SenderAccountID   string
-	RecieverAccountID string
-	Amount            decimal
-	CurrencyCode      string 
+entity inner_transfer_order {
+	id                  string // acts as idempotency key
+	sender_account_id   string
+	reciever_account_id string
+	amount              decimal
+	currency_code       string 
 }
 ```
 - `from==to` - ErrAccountsMustBeDifferent
@@ -38,15 +40,15 @@ entity InnerTransferOrder {
 
 Method returns transfers ordered by `UpdatedAt` if the count greater than 100, limit to it 100
 ```
-entity Transfers {
-    ID                     string
-    CurrencyCode           string
-    Amount                 decimal
-    AccountID              string // account specified in query
-    CorrespondingAccountID string // optional in case of deposit/withdraw
-    Type                   string // enum 'DEPOSIT'|'WITHDRAW'|'INTERNAL'
-    Direction              string // enum 'INCOMING'|'OUTGOING'
-    CreatedAt              date
+entity transfer {
+    id                       string
+    currency_code            string
+    amount                   decimal
+    account_id               string // account specified in query
+    corresponding_account_id string // optional in case of deposit/withdraw
+    type                     string // enum 'DEPOSIT'|'WITHDRAW'|'INTERNAL'
+    direction                string // enum 'INCOMING'|'OUTGOING'
+    created_at               date
 }
 ```
  - ErrAccountNotFound
@@ -54,14 +56,14 @@ entity Transfers {
  
 ### GetAllAccounts
 
-Method returns accounts ordered by `UpdatedAt` if count greater than 100, limit to 100
+Method returns accounts ordered by `updated_at` if count greater than 100, limit to 100
 ```
-entity Account {
-    ID           string
-    CurrencyCode string
-    Balance      decimal
-    CreatedAt    date
-    UpdatedAt    date
+entity account {
+    id            string
+    currency_code string
+    balance       decimal
+    created_at    date
+    updated_at    date
 }
 ```
  - UnknownError - 500

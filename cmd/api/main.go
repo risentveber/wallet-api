@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	_ "github.com/lib/pq"
 	"github.com/oklog/run"
 
@@ -25,13 +26,17 @@ func retry(pause time.Duration, maxCount uint, call func() error, logger log.Log
 		if err == nil {
 			return nil
 		}
-		_ = logger.Log("msg", "retry after: "+pause.String()+", retries left: "+strconv.Itoa(int(maxCount-i)-1)+", error: "+err.Error())
+		_ = level.Warn(logger).Log(
+			"msg", "retry after: "+
+				pause.String()+", retries left: "+
+				strconv.Itoa(int(maxCount-i)-1)+", error: "+err.Error())
 		time.Sleep(pause)
 	}
 
 	return err
 }
 
+// give stack when panic is recovered.
 func trimPanicStack() string {
 	buf := make([]byte, 1024)
 	for {
@@ -44,7 +49,13 @@ func trimPanicStack() string {
 }
 
 func RecoverWrap(h http.Handler, logger log.Logger) http.Handler {
+	debugLogger := level.Debug(logger)
+	errorLogger := level.Error(logger)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func(begin time.Time) {
+			_ = debugLogger.Log("path", r.URL.String(), "latency", time.Since(begin))
+		}(time.Now())
 		defer func() {
 			r := recover()
 			if r != nil {
@@ -57,7 +68,7 @@ func RecoverWrap(h http.Handler, logger log.Logger) http.Handler {
 				default:
 					msg = "unknown error"
 				}
-				_ = logger.Log("panic", msg, "stack", trimPanicStack())
+				_ = errorLogger.Log("panic", msg, "stack", trimPanicStack())
 				http.Error(w, msg, http.StatusInternalServerError)
 			}
 		}()
@@ -66,20 +77,20 @@ func RecoverWrap(h http.Handler, logger log.Logger) http.Handler {
 }
 
 func main() { // nolint funlen
-	logger := log.With(log.NewJSONLogger(os.Stdout), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
+	c := NewConfig()
+	logger := level.NewFilter(log.NewJSONLogger(os.Stdout), c.logLevel)
+	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 
 	defer func() {
 		if r := recover(); r != nil {
 			if err, ok := r.(error); ok {
-				_ = logger.Log("fatal", err.Error())
+				_ = level.Error(logger).Log("fatal", err.Error())
 			} else {
-				_ = logger.Log("fatal", r)
+				_ = level.Error(logger).Log("fatal", r)
 			}
 			os.Exit(1)
 		}
 	}()
-	c := NewConfig()
-	_ = logger.Log("config", c.port)
 
 	db, err := sql.Open("postgres", c.dbConnectionURL)
 	if err != nil {
@@ -94,10 +105,10 @@ func main() { // nolint funlen
 	repo := transfers.NewRepository(db)
 	service := transfers.NewService(repo)
 	endpoints := transfers.NewEndpoints(service)
-	httpHandler := transfers.NewHTTPHandler(endpoints)
+	httpHandler := transfers.NewHTTPHandler(endpoints, logger)
 	httpServer := &http.Server{Handler: RecoverWrap(httpHandler, logger)}
 
-	_ = logger.Log("msg", "started on port "+c.port)
+	_ = level.Info(logger).Log("msg", "started on port "+c.port)
 	var g run.Group
 	{
 		httpListener, err := net.Listen("tcp", ":"+c.port)
@@ -118,16 +129,16 @@ func main() { // nolint funlen
 	err = g.Run()
 
 	if sig, ok := err.(run.SignalError); ok {
-		_ = logger.Log("msg", "exiting by signal "+sig.Signal.String())
+		_ = level.Info(logger).Log("msg", "exiting by signal "+sig.Signal.String())
 		err = nil
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.shutdownTimeout)
 	if err := httpServer.Shutdown(ctx); err != nil {
 		cancel()
-		_ = logger.Log("msg", "graceful shutdown "+err.Error())
+		_ = level.Info(logger).Log("msg", "graceful shutdown "+err.Error())
 	}
 	if err != nil {
 		panic(err)
 	}
-	_ = logger.Log("msg", "server exits normally")
+	_ = level.Info(logger).Log("msg", "server exits normally")
 }

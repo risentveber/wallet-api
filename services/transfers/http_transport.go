@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/transport"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -15,19 +17,24 @@ func ErrorEncoder(_ context.Context, err error, w http.ResponseWriter) {
 	_ = json.NewEncoder(w).Encode(NewCommonResponse(nil, err))
 }
 
-func NewHTTPHandler(endpoints Endpoints) http.Handler {
+func NewHTTPHandler(endpoints Endpoints, logger log.Logger) http.Handler {
 	r := mux.NewRouter().StrictSlash(true)
 	errorEncoder := httptransport.ServerErrorEncoder(ErrorEncoder)
 	r.Handle("/transfers/",
 		httptransport.NewServer(endpoints.CreateTransfer,
-			DecodeCreateTransferRequest, EncodeCreateTransferResponse, errorEncoder)).
+			DecodeCreateTransferRequest, EncodeCreateTransferResponse,
+			errorEncoder,
+			httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)))).
 		Methods("POST")
 	r.Handle("/accounts/{account_id}/transfers/",
 		httptransport.NewServer(endpoints.GetTransfersForAccount,
-			DecodeGetTransfersForAccountRequest, EncodeGetTransfersForAccountResponse, errorEncoder)).
+			DecodeGetTransfersForAccountRequest, EncodeGetTransfersForAccountResponse,
+			errorEncoder, httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)))).
 		Methods("GET")
 	r.Handle("/accounts/",
-		httptransport.NewServer(endpoints.GetAccounts, DecodeGetAccountsRequest, EncodeGetAccountsResponse, errorEncoder)).
+		httptransport.NewServer(endpoints.GetAccounts,
+			DecodeGetAccountsRequest, EncodeGetAccountsResponse,
+			errorEncoder, httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)))).
 		Methods("GET")
 
 	return r

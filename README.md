@@ -25,13 +25,29 @@ once it will always return 'OK' without duplication).
 
 ## Tech assumptions
 
-- Service simplified - there is no prometheus metrics and extra logging.
+- Service simplified - there is no prometheus metrics, tracing and extra logging.
 - It's supposed to run in k8s - there is no service discovery logic.
 - For supported configuration flags see `./cmd/api/config.go`.
 - When started server tries connect to DB until succeed or 
 retries count exceeded(see configuration options).
 - To stop server gracefully you need to send `SIGHUP`, and it will try do it
 in time specified via configuration.
+
+```
+Usage of /bin/api:
+  -db string
+    	db connections credentials
+  -dbRetryCount uint
+    	retry count for connecting to db (default 10)
+  -dbRetryTimeout duration
+    	retry timeout for connecting to db (default 2s)
+  -logLevel string
+    	debug|info|warn|error (default "info")
+  -port string
+    	port (default "8080")
+  -shutdownTimeout duration
+    	graceful shutdown timeout (default 10s)
+```
 
 ## Questions and features to be considered for future
 

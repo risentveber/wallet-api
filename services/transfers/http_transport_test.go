@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -26,9 +28,11 @@ func (m svcEmptyMock) GetAccounts(ctx context.Context) ([]Account, error) {
 	return nil, nil
 }
 
+var testLogger = log.NewLogfmtLogger(os.Stdout)
+
 func TestGetTrailingSlashRedirect(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}), testLogger)
 	req, _ := http.NewRequest("GET", "/accounts", nil)
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, req)
@@ -38,7 +42,7 @@ func TestGetTrailingSlashRedirect(t *testing.T) {
 
 func TestGetAccounts(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}), testLogger)
 	req, _ := http.NewRequest("GET", "/accounts/", nil)
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, req)
@@ -49,7 +53,7 @@ func TestGetAccounts(t *testing.T) {
 
 func TestGetTransfersForAccount(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}), testLogger)
 	req, _ := http.NewRequest("GET", "/accounts/84C7940A-BC65-4B87-A563-E814E520D040/transfers/", nil)
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, req)
@@ -60,7 +64,7 @@ func TestGetTransfersForAccount(t *testing.T) {
 
 func TestCreateTransferEmptyBody(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}), testLogger)
 	req, _ := http.NewRequest("POST", "/transfers/", &bytes.Buffer{})
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, req)
@@ -71,7 +75,7 @@ func TestCreateTransferEmptyBody(t *testing.T) {
 
 func TestCreateTransferValidBody(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcEmptyMock{}), testLogger)
 	req, _ := http.NewRequest("POST", "/transfers/",
 		bytes.NewBuffer([]byte(`{"id":"AB363360-632B-4643-B93F-0486B764E98D"}`)))
 	req.Header.Set("Content-Type", "application/json")
@@ -106,7 +110,7 @@ func (m svcMock) GetAccounts(ctx context.Context) ([]Account, error) {
 
 func TestResponseFormatGetTransfers(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcMock{}), testLogger)
 	req, _ := http.NewRequest("GET", "/accounts/84C7940A-BC65-4B87-A563-E814E520D040/transfers/", nil)
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, req)
@@ -132,7 +136,7 @@ func TestResponseFormatGetTransfers(t *testing.T) {
 
 func TestResponseFormatGetAccounts(t *testing.T) {
 	a := assert.New(t)
-	handler := NewHTTPHandler(NewEndpoints(svcMock{}))
+	handler := NewHTTPHandler(NewEndpoints(svcMock{}), testLogger)
 	req, _ := http.NewRequest("GET", "/accounts/", nil)
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, req)

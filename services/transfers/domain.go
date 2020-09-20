@@ -11,18 +11,17 @@ import (
 
 // Business logic level errors that provide enough information about what went wrong.
 var (
-	ErrAccountsMustBeDifferent = errors.New("accounts must be different")
-	ErrAmountMustBePositive    = errors.New("transfer amount must be positive")
-	ErrUnsupportedCurrency     = errors.New("currency isn't supported")
-	ErrInsufficientFunds       = errors.New("insufficient funds")
-	ErrSenderNotExists         = errors.New("sender account not exist")
-	ErrReceiverNotExists       = errors.New("receiver account not exist")
-	ErrSenderWrongCurrency     = errors.New("sender account wrong currency")
-	ErrReceiverWrongCurrency   = errors.New("receiver account wrong currency")
-	ErrEmptyTransferID         = errors.New("transfer id must not be empty")
-	ErrEmptySenderAccountID    = errors.New("sender_account_id must not be empty")
-	ErrEmptyReceiverAccountID  = errors.New("receiver_account_id must not be empty")
-	ErrNotImplemented          = errors.New("not implemented")
+	ErrAccountsMustBeDifferent = errors.New("accounts_must_be_different")
+	ErrAmountMustBePositive    = errors.New("transfer_amount_must_be_positive")
+	ErrUnsupportedCurrency     = errors.New("currency_not_supported")
+	ErrInsufficientFunds       = errors.New("insufficient_funds")
+	ErrSenderNotExists         = errors.New("sender_account_not_exist")
+	ErrReceiverNotExists       = errors.New("receiver_account_not_exist")
+	ErrSenderWrongCurrency     = errors.New("sender_account_wrong_currency")
+	ErrReceiverWrongCurrency   = errors.New("receiver_account_wrong_currency")
+	ErrEmptyTransferID         = errors.New("transfer_id_is_empty")
+	ErrEmptySenderAccountID    = errors.New("sender_account_id_is_empty")
+	ErrEmptyReceiverAccountID  = errors.New("receiver_account_id_is_empty")
 )
 
 // Transfer type enums.

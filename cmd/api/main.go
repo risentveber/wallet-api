@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"syscall"
 	"time"
@@ -29,6 +30,39 @@ func retry(pause time.Duration, maxCount uint, call func() error, logger log.Log
 	}
 
 	return err
+}
+
+func trimPanicStack() string {
+	buf := make([]byte, 1024)
+	for {
+		n := runtime.Stack(buf, false)
+		if n < len(buf) {
+			return string(buf[:n])
+		}
+		buf = make([]byte, 2*len(buf)) // nolint gomnd
+	}
+}
+
+func RecoverWrap(h http.Handler, logger log.Logger) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			r := recover()
+			if r != nil {
+				msg := ""
+				switch t := r.(type) {
+				case string:
+					msg = t
+				case error:
+					msg = t.Error()
+				default:
+					msg = "unknown error"
+				}
+				_ = logger.Log("panic", msg, "stack", trimPanicStack())
+				http.Error(w, msg, http.StatusInternalServerError)
+			}
+		}()
+		h.ServeHTTP(w, r)
+	})
 }
 
 func main() { // nolint funlen
@@ -61,7 +95,7 @@ func main() { // nolint funlen
 	service := transfers.NewService(repo)
 	endpoints := transfers.NewEndpoints(service)
 	httpHandler := transfers.NewHTTPHandler(endpoints)
-	httpServer := &http.Server{Handler: httpHandler}
+	httpServer := &http.Server{Handler: RecoverWrap(httpHandler, logger)}
 
 	_ = logger.Log("msg", "started on port "+c.port)
 	var g run.Group

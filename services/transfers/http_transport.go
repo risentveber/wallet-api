@@ -16,7 +16,7 @@ func ErrorEncoder(_ context.Context, err error, w http.ResponseWriter) {
 }
 
 func NewHTTPHandler(endpoints Endpoints) http.Handler {
-	r := mux.NewRouter()
+	r := mux.NewRouter().StrictSlash(true)
 	errorEncoder := httptransport.ServerErrorEncoder(ErrorEncoder)
 	r.Handle("/transfers/",
 		httptransport.NewServer(endpoints.CreateTransfer,

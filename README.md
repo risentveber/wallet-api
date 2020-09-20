@@ -68,7 +68,7 @@ via git blame.
 task attach_hooks
 ```
 After you start and change something modd rebuild and restart app via `./tools/modd.conf`
-There is also `./toosl/init.sql` file that maybe useful if you decide to populate DB with test data.
+There is also `./tools/init.sql` file that maybe useful if you decide to populate DB with test data.
 
 ### Build Docker image for deployment 
 

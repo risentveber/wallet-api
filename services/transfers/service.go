@@ -75,6 +75,9 @@ func (s service) CreateTransfer(ctx context.Context, o InnerTransferOrder) error
 	if o.SenderAccountID == uuid.Nil {
 		return ErrEmptySenderAccountID
 	}
+	if o.ReceiverAccountID == o.SenderAccountID {
+		return ErrAccountsMustBeDifferent
+	}
 	o.CurrencyCode = strings.ToUpper(o.CurrencyCode)
 	precision, ok, err := s.repo.GetPrecision(ctx, o.CurrencyCode)
 	if err != nil {
@@ -86,9 +89,6 @@ func (s service) CreateTransfer(ctx context.Context, o InnerTransferOrder) error
 	o.Amount = o.Amount.Round(int32(precision))
 	if !o.Amount.IsPositive() {
 		return ErrAmountMustBePositive
-	}
-	if o.ReceiverAccountID == o.SenderAccountID {
-		return ErrAccountsMustBeDifferent
 	}
 
 	err = s.repo.CreateInnerTransferTransactionWithLock(

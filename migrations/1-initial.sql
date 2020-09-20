@@ -14,8 +14,8 @@ CREATE TABLE accounts
     id            uuid PRIMARY KEY,
     currency_code varchar(4) not null references currencies (code),
     balance       decimal    not null default 0.0 check ( balance >= 0 ),
-    created_at    date       not null default now(),
-    updated_at    date       not null default now()
+    created_at    timestamp  not null default now(),
+    updated_at    timestamp  not null default now()
 );
 
 CREATE INDEX accounts_by_updated_at on accounts (updated_at);
@@ -28,7 +28,7 @@ CREATE TABLE transfers
     type          transfer_type,
     amount        decimal    not null check ( amount > 0 ),
     currency_code varchar(4) not null references currencies (code),
-    created_at    date       not null default now()
+    created_at    timestamp  not null default now()
 );
 
 CREATE TYPE direction_type AS ENUM ('INCOMING', 'OUTGOING');
@@ -48,6 +48,7 @@ CREATE INDEX transfer_parts_by_transfer_id on transfer_parts (transfer_id);
 DROP INDEX transfer_parts_by_transfer_id;
 DROP INDEX transfer_parts_by_account_id;
 DROP TABLE transfer_parts;
+DROP TYPE direction_type;
 
 DROP TABLE transfers;
 DROP TYPE transfer_type;

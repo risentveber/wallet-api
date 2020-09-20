@@ -7,5 +7,6 @@ require (
 	github.com/google/uuid v1.0.0
 	github.com/gorilla/mux v1.7.3
 	github.com/lib/pq v1.8.0
+	github.com/oklog/run v1.1.0
 	github.com/shopspring/decimal v1.2.0
 )

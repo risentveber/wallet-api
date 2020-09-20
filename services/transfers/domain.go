@@ -19,6 +19,9 @@ var (
 	ErrReceiverNotExists       = errors.New("receiver account not exist")
 	ErrSenderWrongCurrency     = errors.New("sender account wrong currency")
 	ErrReceiverWrongCurrency   = errors.New("receiver account wrong currency")
+	ErrEmptyTransferID         = errors.New("transfer id must not be empty")
+	ErrEmptySenderAccountID    = errors.New("sender_account_id must not be empty")
+	ErrEmptyReceiverAccountID  = errors.New("receiver_account_id must not be empty")
 	ErrNotImplemented          = errors.New("not implemented")
 )
 
@@ -43,11 +46,11 @@ type Currency struct {
 
 // Transfer order for system to process.
 type InnerTransferOrder struct {
-	ID                uuid.UUID // uuid4 acts as idempotency key
-	SenderAccountID   uuid.UUID
-	ReceiverAccountID uuid.UUID
-	Amount            decimal.Decimal
-	CurrencyCode      string // code
+	ID                uuid.UUID       `json:"id"`
+	SenderAccountID   uuid.UUID       `json:"sender_account_id"`
+	ReceiverAccountID uuid.UUID       `json:"receiver_account_id"`
+	Amount            decimal.Decimal `json:"amount"`
+	CurrencyCode      string          `json:"currency_code"`
 }
 
 type TransferInfo struct {

@@ -8,7 +8,7 @@ import (
 )
 
 type CreateTransferRequest struct {
-	Order InnerTransferOrder
+	InnerTransferOrder
 }
 
 type CreateTransferResponse struct {
@@ -18,7 +18,7 @@ type CreateTransferResponse struct {
 func MakeCreateTransferEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateTransferRequest)
-		err := s.CreateTransfer(ctx, req.Order)
+		err := s.CreateTransfer(ctx, req.InnerTransferOrder)
 
 		return CreateTransferResponse{Err: err}, nil
 	}

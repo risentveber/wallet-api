@@ -4,6 +4,7 @@ linters:
     - lll
     - unused
     - wsl
+    - nolintlint
   enable-all: true
 linters-settings:
   goimports:

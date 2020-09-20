@@ -1,0 +1,8 @@
+sudo: required
+services:
+  - docker
+before_script:
+  - docker build -t go-dev-tools:tmp -f ./tools/Dockerfile-tools .
+script:
+  - docker run --rm -v "$(pwd):/app" go-dev-tools:tmp -c 'task lint'
+  - docker run --rm -v "$(pwd):/app" go-dev-tools:tmp -c 'task test'

@@ -1,4 +1,5 @@
 # wallet-api
+[![Build Status](https://travis-ci.com/risentveber/wallet-api.svg?branch=master)](https://travis-ci.com/risentveber/wallet-api)
 
 Service stores account balances and provide one with functionality 
 of transferring money from one account to another.

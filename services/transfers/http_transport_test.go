@@ -147,11 +147,11 @@ func TestResponseFormatGetAccounts(t *testing.T) {
   "result": "OK",
   "payload": [
     {
-      "ID": "ab363360-632b-4643-b93f-0486b764e98d",
-      "CurrencyCode": "USD",
-      "Balance": "10",
-      "CreatedAt": "0001-01-01T00:00:00Z",
-      "UpdatedAt": "0001-01-01T00:00:00Z"
+      "id": "ab363360-632b-4643-b93f-0486b764e98d",
+      "currency_code": "USD",
+      "balance": "10",
+      "created_at": "0001-01-01T00:00:00Z",
+      "updated_at": "0001-01-01T00:00:00Z"
     }
   ]
 }`, response.Body.String())

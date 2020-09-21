@@ -2,13 +2,14 @@
 
 ## Common response format
 
-All json responses are with `snake_case` field names format
+All json responses are with `snake_case` field names format.
+All errors hidden from HTTP level - you supposed to check result yourself.
 
 ```
 entity common_response {
-  result_code string // enum 'OK'|'ERROR'
-  error       string // empty if ResultCode is 'OK'
-  payload     object|array // 
+  result  string // enum 'OK'|'ERROR'
+  error   string // empty if ResultCode is 'OK'
+  payload object|array // context-dependent
 }
 ```
 
@@ -38,7 +39,8 @@ entity inner_transfer_order {
  
 ### GetPaymentsByAccountID
 
-Method returns transfers ordered by `UpdatedAt` if the count greater than 100, limit to it 100
+Method returns array transfers ordered by `UpdatedAt` if the count greater than 100, limit to it 100.
+Returns empty array when account not found.
 ```
 entity transfer {
     id                       string
@@ -51,8 +53,6 @@ entity transfer {
     created_at               date
 }
 ```
- - ErrAccountNotFound
- - ErrUnknown - 500
  
 ### GetAllAccounts
 
@@ -66,4 +66,3 @@ entity account {
     updated_at    date
 }
 ```
- - UnknownError - 500

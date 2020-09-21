@@ -6,15 +6,16 @@ of transferring money from one account to another.
 
 ## Domain
 
-For detailed API documentation see `API.md`.
+For detailed API documentation see `API.md`. You can find DDD like description
+at code-level in `services/transfers/domain.go`.
 
 ## Business assumptions
 
 - All IDs here are uuid4.
 - Term transfer suits better than payment.
 - No functionality for deposit/withdraw - just inner transfer.
-- Each transfer consist of one(deposit/withdraw) or two(inner) parts that.
-are denormalized for better read performance.
+- Each transfer consist of one(deposit/withdraw) or two(inner) parts that
+are denormalized (for better read performance).
 - Transfer amount rounding without any error if there is extra precision specified.
 
 ## Business conventions
@@ -68,7 +69,7 @@ You need install:
 ### Run locally
 
 ```bash
-task build_dev_tools # builds toolig image
+task build_dev_tools # builds tooling image
 task up # run all in docker compose
 # wait some time until PostgreSQL will statred
 task migrate # apply migrations inside docker-compose started by task up
@@ -76,6 +77,8 @@ task -l # for available tasks for development
 ```
 
 ### Development
+Some task commands may require tools that presented in 
+docker image that can build from `tools/Dockerfile-tools` via `task build_dev_tools`.
 
 Attaches git hooks for running test/linter in development process lifecycle,
 also prepending each commit msg with `[<branch_name>] ` prefix for later investigations 
@@ -84,7 +87,14 @@ via git blame.
 task attach_hooks
 ```
 After you start and change something modd rebuild and restart app via `./tools/modd.conf`
-There is also `./tools/init.sql` file that maybe useful if you decide to populate DB with test data.
+There is also `./integration/init.sql` file that maybe useful if you decide to populate DB with test data.
+
+### Tests
+
+```bash
+task test # if have go installed or inside go-dev-tools docker image
+task run_integration_tests # runs integration tests via docker-compose 
+```
 
 ### Build Docker image for deployment 
 
@@ -105,7 +115,10 @@ IMAGE_NAME=wallet-api:1.0.0 task build_api_image
 - https://github.com/gorilla/mux - http routing.
 - https://github.com/oklog/run - for managing top-level gorutines.
 
+
 ### Tools
+- https://github.com/DATA-DOG/go-sqlmock - SQL mocks for unit tests.
+- https://github.com/stretchr/testify/assert - test assertions.
 - https://github.com/rubenv/sql-migrate - DB migrations.
 - https://github.com/golangci/golangci-lint - go linter.
 - https://github.com/cortesi/modd - watcher for restarting code after changes.

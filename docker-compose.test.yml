@@ -1,0 +1,50 @@
+version: '3.6'
+networks:
+  test_wallet_api_network:
+    name: test wallet api network
+
+services:
+  tests:
+    image: go-dev-tools:latest
+    container_name: integration_tests
+    environment:
+      INTEGRATION_TEST: 'true'
+    depends_on:
+      - api
+      - postgres
+    volumes:
+      - ".:/app"
+      # - $GOPATH/pkg/mod:/go/pkg/mod # uncomment this if you have go installed locally
+    working_dir: /app
+    entrypoint: /bin/sh -c "go test ./integration"
+    networks:
+      - test_wallet_api_network
+  api:
+    image: go-dev-tools:latest
+    container_name: test_api
+    restart: always
+    depends_on:
+      - postgres
+    volumes:
+      - ".:/app"
+      # - $GOPATH/pkg/mod:/go/pkg/mod # uncomment this if you have go installed locally
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    entrypoint: /bin/sh -c "go run ./cmd/api -logLevel debug -db 'host=test-postgres.docker.local port=5432 user=postgres password=test dbname=postgres sslmode=disable'"
+    networks:
+      test_wallet_api_network:
+        aliases:
+          - "test-api.docker.local"
+  postgres:
+    image: postgres:12-alpine
+    container_name: test_db
+    restart: always
+    networks:
+      test_wallet_api_network:
+        aliases:
+          - "test-postgres.docker.local"
+    environment:
+      POSTGRES_PASSWORD: "test"
+    ports:
+      - "5432:5432"

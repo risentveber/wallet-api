@@ -80,11 +80,11 @@ type TransferPart struct {
 
 // Account representation with time fields that are updated accordingly.
 type Account struct {
-	ID           uuid.UUID
-	CurrencyCode string
-	Balance      decimal.Decimal
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID           uuid.UUID       `json:"id"`
+	CurrencyCode string          `json:"currency_code"`
+	Balance      decimal.Decimal `json:"balance"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
 // Business actions.

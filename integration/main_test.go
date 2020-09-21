@@ -233,16 +233,23 @@ func generateCheckBalance(accountID, balance string) func(t *testing.T) {
 
 		accounts, _ := res.Payload.([]interface{})
 		balanceByID := make(map[string]string)
-		for _, a := range accounts {
-			props, _ := a.(map[string]interface{})
+		isRightOrder := true
+		prevTime := time.Now()
+		for _, ac := range accounts {
+			props, _ := ac.(map[string]interface{})
 			if props == nil {
 				continue
 			}
 			balance, _ := props["balance"].(string)
 			currency, _ := props["currency_code"].(string)
+			updatedAt, _ := props["updated_at"].(string)
+			updatedAtTime, err := time.Parse(time.RFC3339Nano, updatedAt)
+			a.NoError(err)
+			isRightOrder = isRightOrder && prevTime.After(updatedAtTime)
 			id, _ := props["id"].(string)
 			balanceByID[id] = balance + currency
 		}
+		a.True(isRightOrder, "ordered by updated_at DESC")
 		a.Equal(balance, balanceByID[strings.ToLower(accountID)])
 	}
 }

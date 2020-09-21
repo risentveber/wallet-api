@@ -4,8 +4,9 @@ For examples here https://httpie.org/ is used.
 
 ## Common response format
 
-All json responses are with `snake_case` field names format.
-All errors hidden from HTTP level - you supposed to check result yourself.
+- All json responses are with `snake_case` field names format.
+- All errors hidden from HTTP level - you supposed to check result yourself.
+- All timestamps are strings in RFC3339Nano format: "2006-01-02T15:04:05.999999999Z07:00".
 
 ```
 entity common_response {

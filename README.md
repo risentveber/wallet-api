@@ -34,8 +34,11 @@ retries count exceeded(see configuration options).
 - To stop server gracefully you need to send `SIGHUP`, and it will try do it
 in time specified via configuration.
 
+## DB layout
+
 ![DB Schema](/docs/schema-db.png?raw=true "DB schema used")
 
+## Configuration
 ```
 Usage of /bin/api:
   -db string

@@ -3,10 +3,13 @@ package transfers
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
+
+var ErrNoRowsAffected = errors.New("db_no_rows_affected")
 
 type entityNotFound struct {
 	uuid.UUID
@@ -14,6 +17,18 @@ type entityNotFound struct {
 
 func (e entityNotFound) Error() string {
 	return "entity with uuid: " + e.String() + " not found"
+}
+
+func validateAffected(res sql.Result) error {
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrNoRowsAffected
+	}
+
+	return nil
 }
 
 type InnerTransferCallback func(sender, receiver Account, a InnerTransferActions) error
@@ -77,20 +92,26 @@ type innerTransferTxn struct {
 }
 
 func (tx innerTransferTxn) CreateTransfer(t Transfer) error {
-	_, err := tx.dbTx.ExecContext(tx.ctx, `
+	res, err := tx.dbTx.ExecContext(tx.ctx, `
 INSERT INTO transfers(id, type, amount, currency_code)
  VALUES ($1, $2, $3, $4)`, t.ID, t.Type, t.Amount, t.CurrencyCode)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return validateAffected(res)
 }
 
 func (tx innerTransferTxn) UpdateBalance(accountID uuid.UUID, balance decimal.Decimal) error {
-	_, err := tx.dbTx.ExecContext(tx.ctx, `
+	res, err := tx.dbTx.ExecContext(tx.ctx, `
 UPDATE accounts
 SET balance = $1, updated_at = now()
 WHERE id = $2`, balance, accountID)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return validateAffected(res)
 }
 
 func (tx innerTransferTxn) CreateTransferPart(tp TransferPart) error {
@@ -178,7 +199,7 @@ func (r repository) CreateInnerTransferTransactionWithLock(
 
 func (r repository) GetAccounts(ctx context.Context, limit uint) ([]Account, error) {
 	rows, err := r.db.QueryContext(ctx, `
-		SELECT id, currency_code, balance, created_at, updated_at FROM accounts LIMIT $1
+		SELECT id, currency_code, balance, created_at, updated_at FROM accounts ORDER BY updated_at LIMIT $1
 	`, limit)
 	if err != nil {
 		return nil, err

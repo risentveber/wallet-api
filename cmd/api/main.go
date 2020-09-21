@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -16,25 +15,9 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/oklog/run"
 
+	"github.com/risentveber/wallet-api/integration"
 	"github.com/risentveber/wallet-api/services/transfers"
 )
-
-func retry(pause time.Duration, maxCount uint, call func() error, logger log.Logger) error {
-	var err error
-	for i := uint(0); i < maxCount; i++ {
-		err = call()
-		if err == nil {
-			return nil
-		}
-		_ = level.Warn(logger).Log(
-			"msg", "retry after: "+
-				pause.String()+", retries left: "+
-				strconv.Itoa(int(maxCount-i)-1)+", error: "+err.Error())
-		time.Sleep(pause)
-	}
-
-	return err
-}
 
 // give stack when panic is recovered.
 func trimPanicStack() string {
@@ -97,7 +80,7 @@ func main() { // nolint funlen
 		panic(err)
 	}
 	defer db.Close()
-	err = retry(c.dbConnectRetryTimout, c.dbConnectRetryCount, db.Ping, logger)
+	err = integration.Retry(c.dbConnectRetryTimout, c.dbConnectRetryCount, db.Ping, logger)
 	if err != nil {
 		panic(err)
 	}

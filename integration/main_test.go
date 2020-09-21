@@ -6,15 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	_ "github.com/lib/pq"
 	migrate "github.com/rubenv/sql-migrate"
 	"github.com/shopspring/decimal"
@@ -23,28 +22,15 @@ import (
 	"github.com/risentveber/wallet-api/services/transfers"
 )
 
-const base = "http://test-api.docker.local:8080"
+const (
+	host = "test-api.docker.local:8080"
+	base = "http://" + host
+)
 
 func integrationTestsDisabled() bool {
 	return os.Getenv("INTEGRATION_TEST") == ""
 }
 
-func retry(pause time.Duration, maxCount uint, call func() error, logger log.Logger) error {
-	var err error
-	for i := uint(0); i < maxCount; i++ {
-		err = call()
-		if err == nil {
-			return nil
-		}
-		_ = level.Warn(logger).Log(
-			"msg", "retry after: "+
-				pause.String()+", retries left: "+
-				strconv.Itoa(int(maxCount-i)-1)+", error: "+err.Error())
-		time.Sleep(pause)
-	}
-
-	return err
-}
 func makePost(path string, requestData map[string]string) (int, transfers.CommonResponse, error) {
 	result := transfers.CommonResponse{}
 	requestBody, err := json.Marshal(requestData)
@@ -114,9 +100,17 @@ var logger = log.NewLogfmtLogger(os.Stdout)
 func prepareDB() error {
 	dir, _ := os.Getwd()
 	logger.Log("msg", "pwd is +"+dir)
-	err := retry(5*time.Second, 10, func() error {
-		_, _, err := makeGet("/accounts/")
-		return err
+	err := Retry(5*time.Second, 10, func() error {
+		tcpAddr, err := net.ResolveTCPAddr("tcp", host)
+		if err != nil {
+			return err
+		}
+		conn, err := net.DialTCP("tcp", nil, tcpAddr)
+		if err != nil {
+			return err
+		}
+		_ = conn.Close()
+		return nil
 	}, logger)
 	if err != nil {
 		_ = logger.Log("fatal", err.Error())

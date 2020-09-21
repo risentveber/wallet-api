@@ -6,7 +6,7 @@ of transferring money from one account to another.
 
 ## Domain
 
-For detailed API documentation see `API.md`. You can find DDD like description
+For detailed API documentation see `/docs/API.md`. You can find DDD like description
 at code-level in `services/transfers/domain.go`.
 
 ## Business assumptions
@@ -33,6 +33,8 @@ once it will always return 'OK' without duplication).
 retries count exceeded(see configuration options).
 - To stop server gracefully you need to send `SIGHUP`, and it will try do it
 in time specified via configuration.
+
+![DB Schema](/docs/schema-db.png?raw=true "DB schema used")
 
 ```
 Usage of /bin/api:
@@ -98,7 +100,7 @@ task run_integration_tests # runs integration tests via docker-compose
 
 ### Build Docker image for deployment 
 
-Be aware you need to run migrations (e.g. via k8s job)
+Be aware you need to run migrations before image deploy (e.g. via k8s job)
 
 ```bash
 IMAGE_NAME=wallet-api:1.0.0 task build_api_image

@@ -12,6 +12,7 @@ at code-level in `services/transfers/domain.go`.
 ## Business assumptions
 
 - All IDs here are uuid4.
+- Service support multiple currencies each one with precision specified in DB.
 - Term transfer suits better than payment.
 - No functionality for deposit/withdraw - just inner transfer.
 - Each transfer consist of one(deposit/withdraw) or two(inner) parts that

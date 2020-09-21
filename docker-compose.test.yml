@@ -5,7 +5,7 @@ networks:
 
 services:
   tests:
-    image: go-dev-tools:latest
+    image: golang:1.15
     container_name: integration_tests
     environment:
       INTEGRATION_TEST: 'true'
@@ -20,7 +20,7 @@ services:
     networks:
       - test_wallet_api_network
   api:
-    image: go-dev-tools:latest
+    image: golang:1.15
     container_name: test_api
     restart: always
     depends_on:
